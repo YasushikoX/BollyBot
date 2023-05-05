@@ -15,7 +15,9 @@ lower_color = np.array([35, 30, 30])
 upper_color = np.array([80, 255, 255])
 
 left = "R,220\nL,160\n"
+slow_left = "R,200\nL,180\n"
 right = "R,160\nL,220\n"
+slow_right = "R,180\nL,200\n"
 stop = "R,188\nL,188\n"
 forward = "R,250\nL,250\n"
 back = "R,250\nL,250\n"
@@ -70,18 +72,27 @@ while True:
 
             center_left = line_position - center_width
             center_right = line_position + center_width
+            center_left_far = line_position - center_width * 2
+            center_right_far = line_position + center_width * 2
 
             cv2.line(frame, (line_position, 0), (line_position, frame.shape[0]), (0, 0, 255), 2)
             cv2.line(frame, (center_left, 0), (center_left, frame.shape[0]), (255, 0, 0), 2)
             cv2.line(frame, (center_right, 0), (center_right, frame.shape[0]), (255, 0, 0), 2)
+            cv2.line(frame, (center_left_far, 0), (center_right, frame.shape[0]), (255, 0, 0), 2)
+            cv2.line(frame, (center_right_far, 0), (center_right, frame.shape[0]), (255, 0, 0), 2)
 
             if center_x < center_left:
-                ser.write(left.encode())
+                ser.write(slow_left.encode())
             elif center_x > center_right:
+                ser.write(slow_right.encode())
+            elif center_x < center_left_far:
+                ser.write(left.encode())
+            elif center_x > center_right_far:
                 ser.write(right.encode())
             else:
                 ser.write(stop.encode())
-
+                time.sleep(2)
+                ser.write(forward.encode())
 
         cv2.imshow('frame', cv2.resize(frame, (1920, 1080)))
         
